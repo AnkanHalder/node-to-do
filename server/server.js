@@ -1,9 +1,11 @@
 var express =require('express');
 var bodyParser=require('body-parser');
+var {ObjectID}=require('mongodb');
+
 
 var {mongoose}=require('./db/mongoose.js');
 var {Todo}=require('./models/todo.js');
-var {user}=require('./models/user.js');
+var {users}=require('./models/users.js');
 
 var app=express();
 
@@ -31,6 +33,53 @@ app.get('/todos',(req,res)=>{
   },(e)=>{
     res.status(400).send(e);
       console.log(e);
+  });
+});
+
+//Users Post Request
+app.post('/users',(req,res)=>{
+  console.log(`${req.body.email}`);
+
+  var user=new users({
+    email:req.body.email
+  });
+
+  user.save().then((doc)=>{
+    res.send({doc});
+  },(e)=>{
+    res.status(400).send(e);
+  });
+
+});
+
+//Users Get request
+
+app.get('/users',(req,res)=>{
+
+  users.find().then((users)=>{
+    res.send({users});
+    console.log(user);
+  },(e)=>{
+    res.status(400).send(e);
+      console.log(e);
+  });
+});
+
+//-------------------
+app.get('/todos/:id',(req,res)=>{
+  var id=req.params.id;
+  if(!ObjectID.isValid(id)){
+    return res.status(404).send();
+  }
+
+  Todo.findById(id).then((todo)=>{
+    if(!todo){
+      return res.status(404).send();
+    }
+
+    res.send({todo});
+  }).catch((e)=>{
+    res.status(400).send();
   });
 });
 
